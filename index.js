@@ -140,7 +140,7 @@ module.exports = function(source) {
 				self: query.self,
 				compileDebug: loaderContext.debug || false,
 				globals: ["require"].concat(query.globals || []),
-				name: "template",
+				name: query.templateName || "template",
 				inlineRuntimeFunctions: false,
 				filters: query.filters,
 				plugins: [
@@ -155,8 +155,13 @@ module.exports = function(source) {
 			}
 			loaderContext.callback(e);
 			return;
-		}
-		var runtime = "var pug = require(" + loaderUtils.stringifyRequest(loaderContext, "!" + modulePaths.runtime) + ");\n\n";
-		loaderContext.callback(null, runtime + tmplFunc.toString() + ";\nmodule.exports = template;");
+    }
+    if (query.es6) {
+      var runtime = "var pug = require(" + loaderUtils.stringifyRequest(loaderContext, "!" + modulePaths.runtime) + ");\n\n";
+		  loaderContext.callback(null, runtime + tmplFunc.toString() + ";\nexport default template;");
+    } else {
+      var runtime = "var pug = require(" + loaderUtils.stringifyRequest(loaderContext, "!" + modulePaths.runtime) + ");\n\n";
+      loaderContext.callback(null, runtime + tmplFunc.toString() + ";\nmodule.exports = template;");
+    }
 	}
 }
